@@ -16,10 +16,6 @@ class KodiServ(object):
     else:
         key = os.environ["KODI_KEY"]
 
-    def player(self):
-        if player := KODI.Player.GetActivePlayers()["result"][0]:
-            return player
-
     def can_request(self) -> bool:
         header = cherrypy.request.headers
         if "Auth-Key" in header.keys() and header["Auth-Key"] == self.key:
@@ -54,6 +50,15 @@ class KodiServ(object):
             KODI.Player.Stop()
 
     # info
+    @cherrypy.expose
+    def movies(self):
+        movies = self.getmovies()
+        fmt = "{movieid:<4} {label}\n"
+        text="ID    Title\n{:-^35}\n".format("-")
+        for movie in movies:
+            text += fmt.format(**movie)
+        return text
+
     @cherrypy.expose
     def nowplaying(self):
         info = KODI.Player.GetItem(playerid=1, properties=[])
@@ -91,14 +96,19 @@ class KodiServ(object):
             fmt["streamdetails"] = _["streamdetails"]
         return fmt
 
+    def getmovies(self) -> dict:
+        _ = KODI.VideoLibrary.GetMovies()
+        movies = _["result"]["movies"]
+        return movies
+
 
 if __name__ == "__main__":
     config = {
         "server.socket_host": "127.0.0.1",
         "server.socket_port": 8989,
         "request.show_tracebacks": False,
-        'tools.response_headers.on': True,
-        'tools.response_headers.headers': [('Content-Type', 'text/plain')]
+        "tools.response_headers.on": True,
+        "tools.response_headers.headers": [("Content-Type", "text/plain")]
     }
     cherrypy.config.update(config)
     try:
