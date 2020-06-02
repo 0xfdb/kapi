@@ -1,5 +1,6 @@
 import json
 import os
+from difflib import get_close_matches
 
 import cherrypy
 from kodipydent import Kodi
@@ -30,9 +31,15 @@ class KodiServ(object):
 
     # commands
     @cherrypy.expose
-    def play(self):
-        if self.can_request():
-            KODI.Player.PlayPause(1)
+    def play(self, title=None, id=None):
+        if self.can_request() and (title is not None or id is not None):
+            movies = self.getmovies()
+            # TODO comparator9000()
+            for movie in movies:
+                if movie["label"] == title:
+                    id = movie["id"]
+                    break
+            KODI.Player.Open(item={"movieid": id})
 
     @cherrypy.expose
     def pause(self):
@@ -100,6 +107,13 @@ class KodiServ(object):
         _ = KODI.VideoLibrary.GetMovies()
         movies = _["result"]["movies"]
         return movies
+
+    def comparator9000(self, string: str) -> list:
+        movie_list = []
+        for each in movies:
+            movie_list.append(each["label"])
+        return get_close_matches(string, movie_list)
+
 
 
 if __name__ == "__main__":
