@@ -10,11 +10,15 @@ Some paths are public and some require `Auth-Key` in the request header. Set wit
 
 ### Endpoints Requiring Auth
 `/play?title=TITLE&id=ID`
+
 `/pause`
+
 `/playpause` (bit redundant no?)
+
 `/stop`
 ### Public Endpoints
 `/movies` returns an html page with a table of movies, style can be set in the `config.ini`
+
 `/nowplaying` Returns json about the current video being played:
 ```json
 {
