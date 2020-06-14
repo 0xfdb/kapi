@@ -4,7 +4,7 @@
 import configparser
 import json
 import sys
-from difflib import get_close_matches
+from difflib import SequenceMatcher, get_close_matches
 from typing import NoReturn, Optional
 
 import cherrypy
@@ -36,7 +36,6 @@ class KodiServ:
     def play(self, title: Optional[str] = None, id: Optional[int] = None) -> NoReturn:
         if self.can_request() and (title is not None or id is not None):
             movies = self.getmovies()
-            # TODO comparator9000()
             for movie in movies:
                 if movie["label"] == title:
                     id = movie["id"]
@@ -57,6 +56,20 @@ class KodiServ:
     def stop(self) -> NoReturn:
         if self.can_request():
             KODI.Player.Stop()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def search(self, title: str) -> dict:
+        if self.can_request():
+            toret = {"matches": []}
+            movies = self.getmovies()
+            matcher = SequenceMatcher(lambda _: _ in "-,", title.lower())
+            for movie in movies:
+                matcher.set_seq2(movie["label"].lower())
+                if matcher.ratio() > 0.75:
+                    print(matcher.ratio())
+                    toret["matches"].append(movie)
+            return toret
 
     # info
     @cherrypy.expose
@@ -100,12 +113,6 @@ class KodiServ:
     def getmovies(self) -> dict:
         query = KODI.VideoLibrary.GetMovies()
         return query["result"]["movies"]
-
-    def comparator9000(self, string: str) -> list:
-        movie_list = []
-        for each in movies:
-            movie_list.append(each["label"])
-        return get_close_matches(string, movie_list)
 
 
 if __name__ == "__main__":

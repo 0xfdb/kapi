@@ -16,6 +16,19 @@ Some paths are public and some require `Auth-Key` in the request header. Set wit
 `/playpause` (bit redundant no?)
 
 `/stop`
+
+`/search?title=TITLE` Response:
+```json
+{
+  "matches": [
+    {
+      "label": "A.I. Rising",
+      "movieid": 22
+    }
+  ]
+}
+```
+
 ### Public Endpoints
 `/movies` returns an html page with a table of movies, style can be set in the `config.ini`
 
@@ -57,5 +70,8 @@ Some paths are public and some require `Auth-Key` in the request header. Set wit
 ```
 If there is no active video, `/nowplaying` returns:
 ```json
-{"active": false, "title": "Nothing is playing"}
+{
+  "active": false,
+  "title": "Nothing is playing"
+}
 ```
