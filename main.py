@@ -4,6 +4,7 @@
 import configparser
 import json
 import sys
+import time
 from difflib import SequenceMatcher, get_close_matches
 from typing import NoReturn, Optional
 
@@ -18,6 +19,8 @@ class KodiServ:
     def __init__(self, key: str, style: str):
         self.key: str = key
         self.style: str = style
+        self.lastreqtime: float = time.time()
+        self.lastnowplayingreq: dict = {}
 
     def can_request(self) -> bool:
         header = cherrypy.request.headers
@@ -106,7 +109,16 @@ class KodiServ:
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def nowplaying(self) -> str:
+    def nowplaying(self) -> dict:
+        if (time.time() - self.lastreq) >= 5:
+            self.lastreqtime = time.time()
+            details = self.getnowplaying()
+            self.lastnowplayingreq = details
+            return details
+        else:
+            return self.lastnowplayingreq
+
+    def getnowplaying(self) -> dict:
         info = KODI.Player.GetItem(playerid=1, properties=[])
         if info["result"]["item"]["label"] != "" and info["result"]["item"]["type"] == "movie":
             details: dict = self.getmoviedetails(info["result"]["item"]["id"])
