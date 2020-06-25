@@ -92,11 +92,14 @@ class KodiServ:
     @cherrypy.tools.json_out()
     def nowplaying(self) -> str:
         info = KODI.Player.GetItem(playerid=1, properties=[])
-        if info["result"]["item"]["label"] != "":
+        if info["result"]["item"]["label"] != "" and info["result"]["item"]["type"] == "movie":
             details: dict = self.getmoviedetails(info["result"]["item"]["id"])
+        elif info["result"]["item"]["label"] != "" and info["result"]["item"]["type"] == "episode":
+            tvshowid = KODI.Player.GetItem(playerid=1, properties=["tvshowid"])["result"]["item"]["tvshowid"]
+            seasonid = KODI.VideoLibrary.GetEpisodeDetails(episodeid=tvshowid, properties=["seasonid"])["result"]["episodedetails"]["seasonid"]
+            details: dict = self.getepisodedetails(info["result"]["item"]["id"],tvshowid,seasonid)
         else:
             details: dict = self.getmoviedetails(None)
-
         return details
 
     def getmoviedetails(self, movieid: str) -> dict:
@@ -108,7 +111,22 @@ class KodiServ:
                 properties=["title", "imdbnumber", "lastplayed", "streamdetails"],
             )
             details["result"]["moviedetails"]["active"] = True
-        return details["result"]["moviedetails"]
+        return details
+
+    def getepisodedetails(self, episodeid: str, tvshowid: str, seasonid: str) -> dict:
+        if episodeid is None:
+            return {"active": False, "title": "Nothing is playing"}
+        else:
+            show_name = KODI.VideoLibrary.GetTVShowDetails(tvshowid=tvshowid)["result"]["tvshowdetails"]["label"]
+            episode_title = KODI.VideoLibrary.GetEpisodeDetails(episodeid=episodeid,)["result"]["episodedetails"]["label"]
+            episode_season = KODI.VideoLibrary.GetSeasonDetails(seasonid=seasonid)["result"]["seasondetails"]["label"]
+            episode_properties = KODI.VideoLibrary.GetEpisodeDetails(episodeid=episodeid, properties=["lastplayed", "streamdetails"])["result"]["episodedetails"]
+            longtitle = show_name + ' ' + episode_season + ': ' + episode_title
+            detail_head = {"active": True, "title": longtitle}
+            details = {}
+            details.update(detail_head)
+            details.update(episode_properties)
+        return details
 
     def getmovies(self) -> dict:
         query = KODI.VideoLibrary.GetMovies()
