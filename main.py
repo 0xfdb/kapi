@@ -89,6 +89,22 @@ class KodiServ:
         return page
 
     @cherrypy.expose
+    def tvshows(self) -> str:
+        tvshows = self.getshows()
+        page = """
+        <html><head><title>TV Show List</title>
+        <style>{style}</style></head>
+        <table><tr><th>ID</th><th>Title</th></tr>
+        """.format(
+            style=self.style
+        )
+        entryline = "<tr><td>{tvshowid}</td><td>{label}</td></tr>\n"
+        for tvshow in tvshows:
+            page += entryline.format(**tvshow)
+        page += "</table>\n</html>"
+        return page
+
+    @cherrypy.expose
     @cherrypy.tools.json_out()
     def nowplaying(self) -> str:
         info = KODI.Player.GetItem(playerid=1, properties=[])
