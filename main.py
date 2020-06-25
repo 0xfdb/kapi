@@ -132,6 +132,7 @@ if __name__ == "__main__":
             ),
             "tools.response_headers.on": True,
             "tools.response_headers.headers": [("Content-Type", "text/html")],
+            "tools.response_headers.headers": [("Access-Control-Allow-Origin", "https://0xfdb.xyz")],
         }
         cherrypy.config.update(cherrypyconfig)
     try:
