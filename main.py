@@ -127,7 +127,7 @@ class KodiServ:
                 properties=["title", "imdbnumber", "lastplayed", "streamdetails"],
             )
             details["result"]["moviedetails"]["active"] = True
-        return details
+        return details["result"]["moviedetails"]
 
     def getepisodedetails(self, episodeid: str, tvshowid: str, seasonid: str) -> dict:
         if episodeid is None:
