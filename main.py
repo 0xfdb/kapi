@@ -110,7 +110,7 @@ class KodiServ:
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def nowplaying(self) -> dict:
-        if (time.time() - self.lastreq) >= 5:
+        if (time.time() - self.lastreqtime) >= 5:
             self.lastreqtime = time.time()
             details = self.getnowplaying()
             self.lastnowplayingreq = details
