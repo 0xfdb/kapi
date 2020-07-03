@@ -165,7 +165,8 @@ class KodiServ:
             episode_title = KODI.VideoLibrary.GetEpisodeDetails(episodeid=episodeid,)["result"]["episodedetails"]["label"]
             episode_season = KODI.VideoLibrary.GetSeasonDetails(seasonid=seasonid)["result"]["seasondetails"]["label"]
             episode_properties = KODI.VideoLibrary.GetEpisodeDetails(episodeid=episodeid, properties=["lastplayed", "streamdetails"])["result"]["episodedetails"]
-            longtitle = show_name + ' ' + episode_season + ': ' + episode_title
+#           longtitle = show_name + ' ' + episode_season + ': ' + episode_title
+            longtitle = show_name + ': ' + episode_title
             detail_head = {"active": True, "title": longtitle}
             details = {}
             details.update(detail_head)
