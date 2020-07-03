@@ -108,6 +108,22 @@ class KodiServ:
         return page
 
     @cherrypy.expose
+    def playlist(self) -> str:
+        playlist = self.getplaylist()
+        page = """
+        <html><head><title>Current Playlist</title>
+        <style>{style}</style></head>
+        <table><tr><th>Title</th></tr>
+        """.format(
+            style=self.style
+        )
+        entryline = "<tr><td>{label}</td></tr>\n"
+        for label in playlist:
+            page += entryline.format(**label)
+        page += "</table>\n</html>"
+        return page
+
+    @cherrypy.expose
     @cherrypy.tools.json_out()
     def nowplaying(self) -> dict:
         if (time.time() - self.lastreqtime) >= 5:
@@ -160,6 +176,9 @@ class KodiServ:
         query = KODI.VideoLibrary.GetMovies()
         return query["result"]["movies"]
 
+    def getplaylist(self) -> dict:
+        query = KODI.Playlist.GetItems(1)
+        return query['result']['items']
 
 if __name__ == "__main__":
     try:
