@@ -177,6 +177,10 @@ class KodiServ:
         query = KODI.VideoLibrary.GetMovies()
         return query["result"]["movies"]
 
+    def getshows(self) -> dict:
+        query = KODI.VideoLibrary.GetTVShows()
+        return query["result"]["tvshows"]
+
     def getplaylist(self) -> dict:
         query = KODI.Playlist.GetItems(1)
         return query['result']['items']
