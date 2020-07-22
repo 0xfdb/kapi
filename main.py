@@ -30,6 +30,14 @@ class KodiServ:
             self.auth_failed()
             return False
 
+    def determine(self) -> NoReturn:
+        #if cherrypy.request.headers["Referer"] == "https://0xfdb.xyz/index.html":
+        #    cherrypy.response.headers["Access-Control-Allow-Origin"] = "https://0xfdb.xyz"
+        # elif
+        if cherrypy.request.headers["Referer"] == "https://0xfdb.tv/":
+            cherrypy.response.headers["Access-Control-Allow-Origin"] = "https://0xfdb.tv"
+
+
     @staticmethod
     def auth_failed() -> NoReturn:
         raise cherrypy.HTTPError(401, message="Authentication failed")
@@ -126,6 +134,7 @@ class KodiServ:
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def nowplaying(self) -> dict:
+        self.determine()
         if (time.time() - self.lastreqtime) >= 5:
             self.lastreqtime = time.time()
             details = self.getnowplaying()
